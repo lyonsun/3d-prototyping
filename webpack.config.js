@@ -1,10 +1,14 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     mode: 'development',
-    entry: './src/scripts/index.js',
+    entry: {
+        main: ['./src/scripts/index.js', './src/styles/main.css'],
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'scripts/[name].bundle.js',
@@ -24,6 +28,14 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './src/index.html',
             filename: 'index.html'
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'src/models', to: 'models' }
+            ]
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'styles/[name].css',
         })
     ],
     module: {
@@ -37,7 +49,14 @@ module.exports = {
                         presets: ['@babel/preset-env']
                     }
                 }
-            }
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader'
+                ],
+            },
         ]
     },
     optimization: {
