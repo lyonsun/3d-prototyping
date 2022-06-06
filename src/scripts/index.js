@@ -80,15 +80,30 @@ rgbeLoader.load('models/environment/studio_small_09_2k.pic', function (texture) 
                         child.material.emissiveIntensity = 0.5;
                     }
 
-                    interactionManager.add(child);
+                    child.addEventListener('mouseover', function (e) {
+                        e.target.material.color.set(0xff0000);
+                        document.body.style.cursor = "pointer";
+                    })
+
+                    child.addEventListener('mouseout', function (e) {
+                        e.target.material.color.set(0xffffff);
+                        document.body.style.cursor = "default";
+                    })
+
+                    child.addEventListener('mousedown', function (e) {
+                        // e.target.scale.set(1.1, 1.1, 1.1);
+                        // var bb = new THREE.Box3();
+                        // bb.setFromObject(child);
+                        // bb.setFromCenterAndSize(e.target);
+                    })
 
                     child.addEventListener('click', function (e) {
-                        console.log('testing')
-                        camera.position.z = 1.5;
+                        // e.target.scale.set(2.0, 2.0, 2.0);
                     })
+
+                    interactionManager.add(child);
                 }
             });
-
         },
         // called while loading is progressing
         function (xhr) {
@@ -99,17 +114,27 @@ rgbeLoader.load('models/environment/studio_small_09_2k.pic', function (texture) 
             console.log('An error happened');
         }
     );
-});
+},
+    // called while loading is progressing
+    function (xhr) {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    // called when loading has errors
+    function (error) {
+        console.log('An error happened');
+    }
+);
 
 // Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.addEventListener('change', render); // use if there is no animation loop
 controls.minDistance = 1;
 controls.maxDistance = 3;
-controls.target.set(0, 0, - 0.2);
+controls.target.set(0, 0, 0);
 controls.minPolarAngle = Math.PI / 2.5;
 controls.maxPolarAngle = Math.PI / 2.5;
-// controls.enableZoom = false;
+controls.minAzimuthAngle = 0; // - Math.PI / 10;
+controls.maxAzimuthAngle = 0; // Math.PI / 10;
 controls.update();
 
 window.addEventListener('resize', onWindowResize, false)
@@ -132,6 +157,9 @@ function animate() {
     // update the animation
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
+
+    // update interactions
+    interactionManager.update();
 
     render();
 };
